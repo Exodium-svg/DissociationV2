@@ -16,7 +16,7 @@ namespace Application
 
             if(string.Empty == token)
             {
-                logger.Log($"Not token set, please add discord.token to your settings file as string!");
+                logger.Log($"Not token set, please add discord.token to your settings file as string!", LogLevel.Critical);
                 Console.ReadLine();
                 Environment.Exit(0);
             }
@@ -37,16 +37,25 @@ namespace Application
             {
 #if DEBUG
                 Snowflake guildSnowflake = settings.Get<ulong>("guild.test_id", 0);
+
+                if(0 == guildSnowflake)
+                {
+                    logger.Log($"Debug guild ID has not been set on guild.test_id, are we supposed to be a debug version?", LogLevel.Critical);
+                    Console.ReadLine();
+                    Environment.Exit(0);
+                }
+
+
                 await interactions.RegisterCommandsToGuildAsync(guildSnowflake, true);
 #else
+                // Note updating global commands takes up to an hour!
                 await interactions.RegisterCommandsGloballyAsync();
 #endif
                 commandsRegistered = true;
             }
-            string username = client.CurrentUser.GlobalName;
+            string username = client.CurrentUser.Username;
 
             logger.Log($"Succesfully registered on: {username}", LogLevel.Info);
-            // Other shit?
         }
 
         private Task InteractionCreated(SocketInteraction interaction)

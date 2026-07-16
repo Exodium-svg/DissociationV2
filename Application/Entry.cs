@@ -5,6 +5,9 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 
+/// <summary>
+/// Entrypoint of our application, note services are required to be registered in CreateServices for them to work.
+/// </summary>
 internal class Entry
 {
     public static async Task Main()
