@@ -23,6 +23,9 @@ public class ConsoleLoggerService : ILoggerService
     }
 }
 
+/// <summary>
+/// Logger class, we're able to write Logger services which can respond their own way to Log event types. This way we may later on add different methods for logging.
+/// </summary>
 public class Logger
 {
     List<ILoggerService> _logServices;

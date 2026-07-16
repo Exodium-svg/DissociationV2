@@ -2,6 +2,17 @@
 
 namespace Application.Utils;
 
+/// <summary>
+/// Settings file is used for our environment variables.
+/// 
+/// Format:
+/// 
+/// string: key = "{value}"
+/// ulong: key = numeric
+/// bool: key = true
+/// float: key = float
+/// double: key = double
+/// </summary>
 public class Settings
 {
     ConcurrentDictionary<string, object> entries = new();
