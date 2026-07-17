@@ -1,6 +1,5 @@
 ﻿
 #if DEBUG
-using Application.Utils;
 using Discord.Interactions;
 
 namespace Application.CommandModules;

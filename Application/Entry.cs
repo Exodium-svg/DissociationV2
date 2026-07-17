@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Db;
 using Application.Utils;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -14,7 +15,11 @@ internal class Entry
     {
         IServiceProvider provider = CreateServices();
 
-        App application = provider.GetRequiredService<App>();
+        var databaseContext = provider.GetRequiredService<DatabaseContext>();
+
+        databaseContext.Database.EnsureCreated();
+
+        var application = provider.GetRequiredService<App>();
 
         await application.InitializeAsync();
         
@@ -29,8 +34,10 @@ internal class Entry
         Settings settings = new("settings.txt");
 
         collection.AddSingleton<Settings>(settings);
-        collection.AddSingleton<DiscordSocketClient>();
         collection.AddSingleton<Logger>(new Logger([new ConsoleLoggerService()]));
+        collection.AddSingleton<DatabaseContext>();
+        collection.AddSingleton<DiscordSocketClient>();
+        
         collection.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
         collection.AddSingleton<App>();
 

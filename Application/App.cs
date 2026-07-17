@@ -1,4 +1,5 @@
-﻿using Application.Utils;
+﻿using Application.Module;
+using Application.Utils;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -10,7 +11,7 @@ namespace Application;
 /// <summary>
 /// Root of our application, here we initialize everything via ServiceProvider.
 /// </summary>
-public class App(DiscordSocketClient client, InteractionService interactions, Settings settings, IServiceProvider services, Logger logger)
+public class App(DiscordSocketClient client, InteractionService interactions, Settings settings, IServiceProvider services, Logger logger, StarboardModule starboardModule)
 {
     bool commandsRegistered = false;
 
@@ -79,6 +80,24 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
             var ctx = new SocketInteractionContext(client, interaction);
             await interactions.ExecuteCommandAsync(ctx, scope.ServiceProvider);
         };
+
+        client.ReactionAdded += OnReactionAdded;
+    }
+
+    private async Task OnReactionAdded(Cacheable<IUserMessage, ulong> cachedMessage, Cacheable<IMessageChannel, ulong> cachedChannel, SocketReaction reaction)
+    {
+        IMessageChannel channel = await cachedChannel.GetOrDownloadAsync();
+
+        if (channel is not IGuildChannel guildChannel)
+            return; // we may ignore
+
+        IUserMessage message = await cachedMessage.GetOrDownloadAsync();
+
+        bool shouldPost = await starboardModule.UpdateAndCheckPost(message, reaction);
+
+        if (shouldPost)
+            await starboardModule.AddToBoard(guildChannel.Guild, message);
+        
     }
 
     private Task OnLogEvent(LogMessage logInfo)
