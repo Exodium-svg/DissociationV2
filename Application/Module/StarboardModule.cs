@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static Application.Utils.LoggingMessages.Error;
 
 namespace Application.Module;
 public class StarboardModule
@@ -15,8 +16,7 @@ public class StarboardModule
     public Snowflake BoardFlake { get; set; }
     public string SpecificReaction { get; set; }
     readonly Logger logger;
-    private const string STARBOARD_FAILED_TO_GET_CHANNEL_WARNING = "Failed to log to starChannel, invalid ID?";
-    private const string STARBOARD_FAILED_TO_GET_CHANNEL_MESSAGE = "Failed to add message to starboard, please ensure the ID given for the StarChannel is valid!";
+
     public StarboardModule(Settings settings, Logger logger)
     {
         this.logger = logger;
@@ -74,12 +74,12 @@ public class StarboardModule
 
         if(null == starChannel)
         {
-            logger.Log(STARBOARD_FAILED_TO_GET_CHANNEL_WARNING, LogLevel.Warning);
+            logger.Log(NO_STAR_CHANNEL, LogLevel.Warning);
             var ownerUser = await guild.GetOwnerAsync();
 
             var dmChannel = await ownerUser.CreateDMChannelAsync();
 
-            await dmChannel.SendMessageAsync(STARBOARD_FAILED_TO_GET_CHANNEL_MESSAGE);
+            await dmChannel.SendMessageAsync(BAD_STAR_CHANNEL);
             return;
         }
 

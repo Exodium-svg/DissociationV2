@@ -1,5 +1,8 @@
 ﻿using System.Collections.Concurrent;
 
+using static Application.Utils.LoggingMessages.Error;
+using static Application.Utils.LoggingMessages.Success;
+
 namespace Application.Utils;
 
 /// <summary>
@@ -15,11 +18,6 @@ namespace Application.Utils;
 /// </summary>
 public class Settings
 {
-    private const string SETTING_READ_SUCCESS = "Succesfully Grabed all settings!";
-    private const string SETTING_READ_FAILURE = "Failed to Grab any settings? Is this intentional?";
-    private const string READ_EMPTY_VALUE = "Setting '{0}' has an empty value.";
-    private const string READ_EMPTY_KEY = "Skipped line {0}: the setting key is empty.";
-    private const string READ_INVALID_LINE = "Skipped line {0}: the setting is not valid.";
     private enum LineParseResult
     {
         Success,
@@ -67,7 +65,7 @@ public class Settings
             entries[keyValue.Key] = ParseValue(keyValue.Value);
         }
 
-        if (lineNumber == 0) logger.Log(SETTING_READ_FAILURE, LogLevel.Warning);
+        if (lineNumber == 0) logger.Log(NO_SETTINGS, LogLevel.Warning);
         else logger.Log(SETTING_READ_SUCCESS, LogLevel.Info);
 
         return entries;
@@ -117,15 +115,15 @@ public class Settings
     {
         LineParseResult.Success => true,
         LineParseResult.EmptyValue => LogAndReturn(
-            string.Format(READ_EMPTY_VALUE, keyValue.Key),
+            string.Format(EMPTY_VALUE, keyValue.Key),
             LogLevel.Warning,
             true),
         LineParseResult.EmptyKey => LogAndReturn(
-            string.Format(READ_EMPTY_KEY, lineNumber),
+            string.Format(EMPTY_KEY, lineNumber),
             LogLevel.Error,
             false),
         LineParseResult.Invalid => LogAndReturn(
-            string.Format(READ_INVALID_LINE, lineNumber),
+            string.Format(INVALID_LINE, lineNumber),
             LogLevel.Error,
             false),
         _ => false

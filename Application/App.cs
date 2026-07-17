@@ -1,5 +1,7 @@
 ﻿using Application.Module;
 using Application.Utils;
+using static Application.Utils.LoggingMessages.Error;
+using static Application.Utils.LoggingMessages.Success;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -14,10 +16,6 @@ namespace Application;
 public class App(DiscordSocketClient client, InteractionService interactions, Settings settings, IServiceProvider services, Logger logger, StarboardModule starboardModule)
 {
     bool commandsRegistered = false;
-    private const string COMMAND_REGISTER_SUCCESS = "Succesfully registered on!";
-    private const string COMMAND_REGISTER_FAILED = "Failed to register commands!";
-    private const string NO_TOKEN_MSG_CRITICAL = "Not token set, please add discord.token to your settings file as string!";
-    private const string NO_GUILD_ID_CRITICAL = "Debug guild ID has not been set on guild.test_id, are we supposed to be a debug version?";
 
     public async Task InitializeAsync()
     {
@@ -25,7 +23,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
 
         if (string.Empty == token)
         {
-            logger.Log(NO_TOKEN_MSG_CRITICAL, LogLevel.Critical);
+            logger.Log(NO_TOKEN, LogLevel.Critical);
             Console.ReadLine();
             Environment.Exit(0);
         }
@@ -49,7 +47,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
 
             if (0 == guildSnowflake)
             {
-                logger.Log(NO_GUILD_ID_CRITICAL, LogLevel.Critical);
+                logger.Log(NO_GUILD, LogLevel.Critical);
                 Console.ReadLine();
                 Environment.Exit(0);
             }
@@ -64,7 +62,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
             }
             catch (Exception ex)
             {
-                logger.Log($"{COMMAND_REGISTER_FAILED}: {ex}", LogLevel.Error);
+                logger.Log($"{CMD_FAIL}: {ex}", LogLevel.Error);
             }
 #else
             // Note updating global commands takes up to an hour!
