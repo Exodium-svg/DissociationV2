@@ -97,7 +97,6 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
 
         if (shouldPost)
             await starboardModule.AddToBoard(guildChannel.Guild, message);
-        
     }
 
     private Task OnLogEvent(LogMessage logInfo)
