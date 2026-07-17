@@ -14,6 +14,7 @@ public class StarboardEntry
         TotalReactions = totalReactions;
         SpecifiedReactions = specifiedReactions;
         AddedTime = DateTime.UtcNow;
+        Posted = posted; 
     }
 }
 

@@ -19,18 +19,33 @@ public class ConsoleLoggerService : ILoggerService
 {
     public void Log(string message, LogLevel level = LogLevel.Info)
     {
-        Console.WriteLine($"[{level}] {message}");
+        ConsoleColor oldColor = Console.ForegroundColor;
+
+        Console.ForegroundColor = GetLoggerLevelColor(level);
+        Console.Write($"[{level}]");
+
+        Console.ForegroundColor = oldColor;
+        Console.WriteLine($" {message}");
     }
+
+    private static ConsoleColor GetLoggerLevelColor(LogLevel level) => level switch
+    {
+        LogLevel.Debug => ConsoleColor.Gray,
+        LogLevel.Info => ConsoleColor.Green,
+        LogLevel.Warning => ConsoleColor.Yellow,
+        LogLevel.Error => ConsoleColor.Red,
+        LogLevel.Critical => ConsoleColor.Magenta,
+        LogLevel.PeformanceMetric => ConsoleColor.Cyan,
+        _ => ConsoleColor.White
+    };
 }
 
 /// <summary>
 /// Logger class, we're able to write Logger services which can respond their own way to Log event types. This way we may later on add different methods for logging.
 /// </summary>
-public class Logger
+public class Logger(IEnumerable<ILoggerService> services)
 {
-    List<ILoggerService> _logServices;
-
-    public Logger(IEnumerable<ILoggerService> services) => _logServices = new List<ILoggerService>(services);
+    List<ILoggerService> _logServices = [.. services];
 
     public void Log(string message, LogLevel level = LogLevel.Info)
     {

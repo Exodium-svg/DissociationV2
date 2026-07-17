@@ -1,5 +1,6 @@
 ﻿using Application;
 using Application.Db;
+using Application.Module;
 using Application.Utils;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -30,13 +31,14 @@ internal class Entry
     public static IServiceProvider CreateServices()
     {
         ServiceCollection collection = new();
-
+        // Aquire Settings txt.. 
         Settings settings = new("settings.txt");
 
         collection.AddSingleton<Settings>(settings);
         collection.AddSingleton<Logger>(new Logger([new ConsoleLoggerService()]));
         collection.AddSingleton<DatabaseContext>();
         collection.AddSingleton<DiscordSocketClient>();
+        collection.AddSingleton<StarboardModule>();
         
         collection.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
         collection.AddSingleton<App>();
