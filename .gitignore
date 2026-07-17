@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Settings.cs: Ignore any settings made
+settings.txt
+
+# Ignore any databases generated 
+*.db*

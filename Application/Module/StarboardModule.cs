@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static Application.Utils.LoggingMessages.Error;
 
 namespace Application.Module;
 public class StarboardModule
@@ -14,14 +15,13 @@ public class StarboardModule
     public int RequiredSpecificReactions { get; set; }
     public Snowflake BoardFlake { get; set; }
     public string SpecificReaction { get; set; }
-
-    Logger logger;
+    readonly Logger logger;
 
     public StarboardModule(Settings settings, Logger logger)
     {
         this.logger = logger;
-        RequiredReactions = settings.Get<int>("starboard.reactions.required", 10);
-        RequiredReactions = settings.Get<int>("starboard.reactions.required_specific", 5);
+        RequiredReactions = settings.Get<int>("starboard.reactions.required", 1);
+        RequiredReactions = settings.Get<int>("starboard.reactions.required_specific", 1);
         SpecificReaction = settings.Get<string>("starboard.reactions.id", "\uD83D\uDD25");
 
         BoardFlake = settings.Get<ulong>("starboard.channel.flake", 0);
@@ -74,12 +74,12 @@ public class StarboardModule
 
         if(null == starChannel)
         {
-            logger.Log("Failed to log to starChannel, invalid ID?", LogLevel.Warning);
+            logger.Log(NO_STAR_CHANNEL, LogLevel.Warning);
             var ownerUser = await guild.GetOwnerAsync();
 
             var dmChannel = await ownerUser.CreateDMChannelAsync();
 
-            await dmChannel.SendMessageAsync($"Failed to add message to starboard, please ensure the ID given for the StarChannel is valid!");
+            await dmChannel.SendMessageAsync(BAD_STAR_CHANNEL);
             return;
         }
 
