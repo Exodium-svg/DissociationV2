@@ -97,15 +97,19 @@ public class StarboardModule
         var entry = context.StarboardEntries.Where((entry) => entry.Flake == message.Id).FirstOrDefault();
 
         if (null == entry)
+        {
+            entry = new(message.Id, 0, 0, true);
+
+            context.StarboardEntries.Add(entry);
             return;
-
-        entry.Posted = true;
-
-        context.StarboardEntries.Update(entry);
+        }
+        else
+        {
+            entry.Posted = true;
+            context.StarboardEntries.Update(entry);
+        }
 
         var dbSaveTask = context.SaveChangesAsync();
-
-
         var messageTask = starChannel.SendMessageAsync(embed: builder.Build());
 
         Task.WaitAll([messageTask, dbSaveTask]);
