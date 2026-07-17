@@ -14,14 +14,18 @@ namespace Application;
 public class App(DiscordSocketClient client, InteractionService interactions, Settings settings, IServiceProvider services, Logger logger, StarboardModule starboardModule)
 {
     bool commandsRegistered = false;
+    private const string COMMAND_REGISTER_SUCCESS = "Succesfully registered on!";
+    private const string COMMAND_REGISTER_FAILED = "Failed to register commands!";
+    private const string NO_TOKEN_MSG_CRITICAL = "Not token set, please add discord.token to your settings file as string!";
+    private const string NO_GUILD_ID_CRITICAL = "Debug guild ID has not been set on guild.test_id, are we supposed to be a debug version?";
 
     public async Task InitializeAsync()
     {
         string token = settings.Get("discord.token", string.Empty);
 
-        if(string.Empty == token)
+        if (string.Empty == token)
         {
-            logger.Log($"Not token set, please add discord.token to your settings file as string!", LogLevel.Critical);
+            logger.Log(NO_TOKEN_MSG_CRITICAL, LogLevel.Critical);
             Console.ReadLine();
             Environment.Exit(0);
         }
@@ -29,7 +33,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
         await client.LoginAsync(TokenType.Bot, token);
         await interactions.AddModulesAsync(Assembly.GetEntryAssembly(), services);
         await client.StartAsync();
-        
+
 
         client.Log += OnLogEvent;
         client.Ready += OnReady;
@@ -43,9 +47,9 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
 #if DEBUG
             Snowflake guildSnowflake = settings.Get<ulong>("guild.test_id", 0);
 
-            if(0 == guildSnowflake)
+            if (0 == guildSnowflake)
             {
-                logger.Log($"Debug guild ID has not been set on guild.test_id, are we supposed to be a debug version?", LogLevel.Critical);
+                logger.Log(NO_GUILD_ID_CRITICAL, LogLevel.Critical);
                 Console.ReadLine();
                 Environment.Exit(0);
             }
@@ -55,12 +59,12 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
             {
                 await interactions.RegisterCommandsToGuildAsync(guildSnowflake, true);
 
-                foreach( var module in interactions.Modules)
+                foreach (var module in interactions.Modules)
                     logger.Log($"{module.Name} found");
             }
             catch (Exception ex)
             {
-                logger.Log($"Failed to register commands: {ex}", LogLevel.Error);
+                logger.Log($"{COMMAND_REGISTER_FAILED}: {ex}", LogLevel.Error);
             }
 #else
             // Note updating global commands takes up to an hour!
@@ -70,7 +74,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
         }
         string username = client.CurrentUser.Username;
 
-        logger.Log($"Succesfully registered on: {username}", LogLevel.Info);
+        logger.Log($"{COMMAND_REGISTER_SUCCESS}: {username}", LogLevel.Info);
 
 
         // For some reason it has to be a lambda, otherwise it simply doesn't work.
@@ -101,7 +105,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
 
     private Task OnLogEvent(LogMessage logInfo)
     {
-        switch(logInfo.Severity)
+        switch (logInfo.Severity)
         {
             case LogSeverity.Info:
                 logger.Log(logInfo.Message, LogLevel.Info);
@@ -122,7 +126,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
                 logger.Log(logInfo.Exception.Message, LogLevel.Critical);
                 break;
         }
-            
+
 
         return Task.CompletedTask;
     }

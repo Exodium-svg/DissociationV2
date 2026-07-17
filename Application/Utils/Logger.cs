@@ -28,6 +28,7 @@ public class ConsoleLoggerService : ILoggerService
         Console.WriteLine($" {message}");
     }
 
+    // Essentually Set colors here. .
     private static ConsoleColor GetLoggerLevelColor(LogLevel level) => level switch
     {
         LogLevel.Debug => ConsoleColor.Gray,

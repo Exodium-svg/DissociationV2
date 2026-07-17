@@ -14,14 +14,14 @@ public class StarboardModule
     public int RequiredSpecificReactions { get; set; }
     public Snowflake BoardFlake { get; set; }
     public string SpecificReaction { get; set; }
-
-    Logger logger;
-
+    readonly Logger logger;
+    private const string STARBOARD_FAILED_TO_GET_CHANNEL_WARNING = "Failed to log to starChannel, invalid ID?";
+    private const string STARBOARD_FAILED_TO_GET_CHANNEL_MESSAGE = "Failed to add message to starboard, please ensure the ID given for the StarChannel is valid!";
     public StarboardModule(Settings settings, Logger logger)
     {
         this.logger = logger;
-        RequiredReactions = settings.Get<int>("starboard.reactions.required", 10);
-        RequiredReactions = settings.Get<int>("starboard.reactions.required_specific", 5);
+        RequiredReactions = settings.Get<int>("starboard.reactions.required", 1);
+        RequiredReactions = settings.Get<int>("starboard.reactions.required_specific", 1);
         SpecificReaction = settings.Get<string>("starboard.reactions.id", "\uD83D\uDD25");
 
         BoardFlake = settings.Get<ulong>("starboard.channel.flake", 0);
@@ -74,12 +74,12 @@ public class StarboardModule
 
         if(null == starChannel)
         {
-            logger.Log("Failed to log to starChannel, invalid ID?", LogLevel.Warning);
+            logger.Log(STARBOARD_FAILED_TO_GET_CHANNEL_WARNING, LogLevel.Warning);
             var ownerUser = await guild.GetOwnerAsync();
 
             var dmChannel = await ownerUser.CreateDMChannelAsync();
 
-            await dmChannel.SendMessageAsync($"Failed to add message to starboard, please ensure the ID given for the StarChannel is valid!");
+            await dmChannel.SendMessageAsync(STARBOARD_FAILED_TO_GET_CHANNEL_MESSAGE);
             return;
         }
 
