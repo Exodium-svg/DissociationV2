@@ -2,6 +2,7 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Application;
@@ -25,10 +26,10 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
         }
 
         await client.LoginAsync(TokenType.Bot, token);
-        await client.StartAsync();
         await interactions.AddModulesAsync(Assembly.GetEntryAssembly(), services);
+        await client.StartAsync();
+        
 
-        client.InteractionCreated += InteractionCreated;
         client.Log += OnLogEvent;
         client.Ready += OnReady;
     }
@@ -49,7 +50,17 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
             }
 
 
-            await interactions.RegisterCommandsToGuildAsync(guildSnowflake, true);
+            try
+            {
+                await interactions.RegisterCommandsToGuildAsync(guildSnowflake, true);
+
+                foreach( var module in interactions.Modules)
+                    logger.Log($"{module.Name} found");
+            }
+            catch (Exception ex)
+            {
+                logger.Log($"Failed to register commands: {ex}", LogLevel.Error);
+            }
 #else
             // Note updating global commands takes up to an hour!
             await interactions.RegisterCommandsGloballyAsync();
@@ -59,11 +70,15 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
         string username = client.CurrentUser.Username;
 
         logger.Log($"Succesfully registered on: {username}", LogLevel.Info);
-    }
 
-    private Task InteractionCreated(SocketInteraction interaction)
-    {
-        throw new NotImplementedException();
+
+        // For some reason it has to be a lambda, otherwise it simply doesn't work.
+        client.InteractionCreated += async interaction =>
+        {
+            var scope = services.CreateScope();
+            var ctx = new SocketInteractionContext(client, interaction);
+            await interactions.ExecuteCommandAsync(ctx, scope.ServiceProvider);
+        };
     }
 
     private Task OnLogEvent(LogMessage logInfo)
