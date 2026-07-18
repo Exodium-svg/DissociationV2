@@ -11,10 +11,32 @@ public class DatabaseContext : DbContext
     /// 
     /// </summary>
     private const string DEFAULT_DATA_SOURCE = "Data Source=database.db";
+
     /// <summary>
     /// 
     /// </summary>
     public DbSet<StarboardEntry> StarboardEntries { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbSet<Post> PostEntries { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbSet<GuildMember> GuildMembersEntries { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbSet<Guild> GuildEntries { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public DbSet<Channel> ChannelEntries { get; set; }
+
     /// <summary>
     /// 
     /// </summary>

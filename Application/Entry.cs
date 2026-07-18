@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.Db;
 using Application.Module;
+using Application.Module.DiscordRequests;
 using Application.Utils;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -48,7 +49,9 @@ internal class Entry
         collection.AddSingleton(x => new Settings(x.GetRequiredService<Logger>(), DEFAULT_SETTINGS_FILE));
         collection.AddSingleton<DatabaseContext>();
         collection.AddSingleton<DiscordSocketClient>();
+        collection.AddSingleton<DiscordRequestService>();
         collection.AddSingleton<StarboardModule>();
+        collection.AddSingleton<DataModule>();
         collection.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
         collection.AddSingleton<App>();
 
