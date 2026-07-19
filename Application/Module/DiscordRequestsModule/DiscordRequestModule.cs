@@ -7,7 +7,7 @@ namespace Application.Module.DiscordRequests;
 /// <summary>
 /// Queues Discord API requests and processes them through a priority-aware rate limiter.
 /// </summary>
-public class DiscordRequestService
+public class DiscordRequestModule
 {
     /// <summary>
     /// The maximum number of Discord requests allowed per second.
@@ -74,7 +74,7 @@ public class DiscordRequestService
     /// Initializes a Discord request queue and starts the background processor.
     /// </summary>
     /// <param name="logger">Logger used for queue diagnostics.</param>
-    public DiscordRequestService(Logger logger)
+    public DiscordRequestModule(Logger logger)
     {
         this.logger = logger;
         _ = ProcessQueueAsync();

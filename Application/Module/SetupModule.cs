@@ -17,4 +17,12 @@ public class SetupModule
     {
         throw new NotImplementedException(NOT_DONE);
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    internal class SetupWizard
+    {
+        
+    }
 };

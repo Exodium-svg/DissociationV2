@@ -1,5 +1,6 @@
 using Application.Db;
 using Application.Db.Models;
+using Application.Module.DiscordRequests;
 using Application.Utils;
 using Discord;
 using static Application.Utils.LoggingMessages.Error;
@@ -15,17 +16,21 @@ namespace Application.Module;
 /// <summary>
 /// 
 /// </summary>
-public class DataModule
+/// <param name="logger"></param>
+/// <param name="discordService"></param>
+public class DataModule (Logger logger, DiscordRequestModule discordService)
 {
+    
     /// <summary>
     /// 
-    /// We would collect what we need at setup time.. 
     /// </summary>
-    /// <exception cref="NotImplementedException"></exception>
-    DataModule()
-    {
-        throw new NotImplementedException(NOT_DONE);
-    }
+    private readonly Logger logger = logger; 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    private readonly DiscordRequestModule discordService = discordService; 
+
     /// <summary>
     /// 
     /// </summary>
@@ -34,6 +39,7 @@ public class DataModule
     public Task<Channel[]> CollectChannels() {
         throw new NotImplementedException(NOT_DONE);
     }
+    
     /// <summary>
     /// 
     /// </summary>
@@ -43,6 +49,7 @@ public class DataModule
     {
         throw new NotImplementedException(NOT_DONE); 
     }
+    
     /// <summary>
     /// 
     /// </summary>
