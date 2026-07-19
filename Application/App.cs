@@ -29,7 +29,8 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
         }
 
         await client.LoginAsync(TokenType.Bot, token);
-        await interactions.AddModulesAsync(Assembly.GetEntryAssembly(), services);
+        // Broken.. 
+        // await interactions.AddModulesAsync(Assembly.GetEntryAssembly(), services);
         await client.StartAsync();
 
 
@@ -58,7 +59,7 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
                 await interactions.RegisterCommandsToGuildAsync(guildSnowflake, true);
 
                 foreach (var module in interactions.Modules)
-                    logger.Log($"{module.Name} found");
+                    logger.Log(string.Format(MODULE_FOUND, module.Name));
             }
             catch (Exception ex)
             {

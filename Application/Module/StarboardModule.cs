@@ -2,10 +2,6 @@
 using Application.Db.Models;
 using Application.Utils;
 using Discord;
-using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static Application.Utils.LoggingMessages.Error;
 
 namespace Application.Module;
@@ -17,6 +13,11 @@ public class StarboardModule
     public string SpecificReaction { get; set; }
     readonly Logger logger;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="settings"></param>
+    /// <param name="logger"></param>
     public StarboardModule(Settings settings, Logger logger)
     {
         this.logger = logger;
@@ -27,6 +28,12 @@ public class StarboardModule
         BoardFlake = settings.Get<ulong>("starboard.channel.flake", 0);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="reaction"></param>
+    /// <returns></returns>
     public async Task<bool> UpdateAndCheckPost(IUserMessage message, IReaction reaction)
     {
 
@@ -68,6 +75,12 @@ public class StarboardModule
         return shouldPost;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="guild"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
     public async Task AddToBoard(IGuild guild, IUserMessage message)
     {
         ITextChannel? starChannel = await guild.GetChannelAsync(BoardFlake) as ITextChannel;

@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.Db;
 using Application.Module;
+using Application.Module.DiscordRequests;
 using Application.Utils;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -8,12 +9,19 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 
 /// <summary>
-/// Entrypoint of our application, note services are required to be registered in CreateServices for them to work.
+/// Application startup entry point and service registration root.
 /// </summary>
 internal class Entry
 {
-    // To avoid Magic numbers.. oOOHHooo 
+    /// <summary>
+    /// Default settings file loaded when the service provider is created.
+    /// </summary>
     private const string DEFAULT_SETTINGS_FILE = "settings.txt";
+
+    /// <summary>
+    /// Builds application services, prepares the database, initializes the Discord application, and waits for shutdown.
+    /// </summary>
+    /// <returns>A task that completes when the process exits.</returns>
     public static async Task Main()
     {
         IServiceProvider provider = CreateServices();
@@ -29,6 +37,10 @@ internal class Entry
         await Process.GetCurrentProcess().WaitForExitAsync();
     }
 
+    /// <summary>
+    /// Registers application services and builds the dependency injection provider.
+    /// </summary>
+    /// <returns>The configured service provider.</returns>
     public static IServiceProvider CreateServices()
     {
         ServiceCollection collection = new();
@@ -37,7 +49,9 @@ internal class Entry
         collection.AddSingleton(x => new Settings(x.GetRequiredService<Logger>(), DEFAULT_SETTINGS_FILE));
         collection.AddSingleton<DatabaseContext>();
         collection.AddSingleton<DiscordSocketClient>();
+        collection.AddSingleton<DiscordRequestService>();
         collection.AddSingleton<StarboardModule>();
+        collection.AddSingleton<DataModule>();
         collection.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
         collection.AddSingleton<App>();
 
