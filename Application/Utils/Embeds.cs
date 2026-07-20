@@ -1,9 +1,9 @@
-namespace Application.Utils.Embedds;
+namespace Application.Utils;
 
 /// <summary>
 /// Ment to cache embedds. 
 /// </summary>
-public class Embedds
+public static class Embedds
 {
     
 };
