@@ -83,9 +83,7 @@ public class StarboardModule
     /// <returns></returns>
     public async Task AddToBoard(IGuild guild, IUserMessage message)
     {
-        ITextChannel? starChannel = await guild.GetChannelAsync(BoardFlake) as ITextChannel;
-
-        if(null == starChannel)
+        if (await guild.GetChannelAsync(BoardFlake) is not ITextChannel starChannel)
         {
             logger.Log(NO_STAR_CHANNEL, LogLevel.Warning);
             var ownerUser = await guild.GetOwnerAsync();

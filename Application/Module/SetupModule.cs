@@ -1,4 +1,6 @@
 namespace Application.Module;
+
+using Application.Module.DiscordRequests;
 using Application.Utils;
 using static Application.Utils.LoggingMessages.Error;
 
@@ -7,14 +9,16 @@ using static Application.Utils.LoggingMessages.Error;
 /// <summary>
 /// 
 /// </summary>
-public class SetupModule
+public class SetupModule(Logger logger, DiscordRequestModule discordRequestModule)
 {
+    private readonly DiscordRequestModule discordRequestModule = discordRequestModule; 
+    private readonly Logger logger = logger;  
+
     /// <summary>
     /// 
     /// </summary>
-    /// <exception cref="NotImplementedException"></exception>
-    SetupModule()
+    internal class SetupWizard(Logger logger)
     {
-        throw new NotImplementedException(NOT_DONE);
+        private readonly Logger logger = logger;         
     }
 };

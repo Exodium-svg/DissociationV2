@@ -52,7 +52,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public async Task EnqueueReturnsMockResult()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
 
         string result = await service.Enqueue(() => Task.FromResult("mock queued response"));
 
@@ -65,7 +65,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public async Task EnqueuePropagatesFailure()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         var expected = new InvalidOperationException("mock failure");
 
         Task<string> result = service.Enqueue<string>(() => Task.FromException<string>(expected));
@@ -87,7 +87,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public void EnqueueRejectsNullRequest()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         DiscordRequest<string>? request = null;
 
         Assert.ThrowsExactly<ArgumentNullException>(() => service.Enqueue(request!));
@@ -99,7 +99,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public void EnqueueRejectsNullDelegate()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         Func<Task<string>>? request = null;
 
         Assert.ThrowsExactly<ArgumentNullException>(() => service.Enqueue(request!));
@@ -111,7 +111,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public async Task EnqueuePropagatesSyncThrow()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         var expected = new InvalidOperationException("sync failure");
 
         Task<string> result = service.Enqueue<string>(() => throw expected);
@@ -133,7 +133,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public async Task HigherPriorityRunsFirst()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         var firstRequestStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var releaseFirstRequest = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var executionOrder = new List<string>();
@@ -173,7 +173,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public async Task CriticalRunsBeforeBackground()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         var firstRequestStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var releaseFirstRequest = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var executionOrder = new List<string>();
@@ -212,7 +212,7 @@ public sealed class DiscordRequestsTests
     [TestMethod]
     public async Task WaitsBetweenRequests()
     {
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         var firstRequestStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var releaseFirstRequest = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var secondRequestStarted = new TaskCompletionSource<DateTimeOffset>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -249,7 +249,7 @@ public sealed class DiscordRequestsTests
     public async Task QueuesBurstQuickly()
     {
         const int requestCount = 1_000;
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
 
         var stopwatch = Stopwatch.StartNew();
         Task<int>[] requests = [.. Enumerable.Range(0, requestCount).Select(value => service.Enqueue(() => Task.FromResult(value), Priority.Background))];
@@ -272,7 +272,7 @@ public sealed class DiscordRequestsTests
     public async Task ProcessesNearRateLimit()
     {
         const int requestCount = 10;
-        DiscordRequestService service = CreateService();
+        DiscordRequestModule service = CreateService();
         var completionTimes = new List<TimeSpan>(requestCount);
         var stopwatch = Stopwatch.StartNew();
 
@@ -298,10 +298,10 @@ public sealed class DiscordRequestsTests
     /// Creates a Discord request service with an in-memory logger for isolated tests.
     /// </summary>
     /// <returns>A request service configured with mock logging.</returns>
-    private static DiscordRequestService CreateService()
+    private static DiscordRequestModule CreateService()
     {
         var logger = new Logger([new TestLoggerService()]);
-        return new DiscordRequestService(logger);
+        return new DiscordRequestModule(logger);
     }
 
     public TestContext TestContext { get; set; }

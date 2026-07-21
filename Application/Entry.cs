@@ -49,7 +49,7 @@ internal class Entry
         collection.AddSingleton(x => new Settings(x.GetRequiredService<Logger>(), DEFAULT_SETTINGS_FILE));
         collection.AddSingleton<DatabaseContext>();
         collection.AddSingleton<DiscordSocketClient>();
-        collection.AddSingleton<DiscordRequestService>();
+        collection.AddSingleton<DiscordRequestModule>();
         collection.AddSingleton<StarboardModule>();
         collection.AddSingleton<DataModule>();
         collection.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()));
