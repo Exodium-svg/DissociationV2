@@ -7,13 +7,14 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Application.Scheduling;
 
 namespace Application;
 
 /// <summary>
 /// Root of our application, here we initialize everything via ServiceProvider.
 /// </summary>
-public class App(DiscordSocketClient client, InteractionService interactions, Settings settings, IServiceProvider services, Logger logger, StarboardModule starboardModule)
+public class App(DiscordSocketClient client, InteractionService interactions, Settings settings, IServiceProvider services, Logger logger, StarboardModule starboardModule, Scheduler scheduler)
 {
     bool commandsRegistered = false;
 
@@ -36,6 +37,8 @@ public class App(DiscordSocketClient client, InteractionService interactions, Se
 
         client.Log += OnLogEvent;
         client.Ready += OnReady;
+
+        scheduler.Start();
     }
 
     private async Task OnReady()

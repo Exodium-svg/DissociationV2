@@ -2,6 +2,7 @@
 using Application.Db;
 using Application.Module;
 using Application.Module.DiscordRequests;
+using Application.Scheduling;
 using Application.Utils;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -47,6 +48,7 @@ internal class Entry
 
         collection.AddSingleton(new Logger([new ConsoleLoggerService()]));
         collection.AddSingleton(x => new Settings(x.GetRequiredService<Logger>(), DEFAULT_SETTINGS_FILE));
+        collection.AddSingleton(x => new Scheduler(x.GetRequiredService<Settings>().Get<int>("scheduler.threads", 1)));
         collection.AddSingleton<DatabaseContext>();
         collection.AddSingleton<DiscordSocketClient>();
         collection.AddSingleton<DiscordRequestModule>();

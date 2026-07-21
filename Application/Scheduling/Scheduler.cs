@@ -32,37 +32,43 @@ public class BaseScheduleWork<T> : IScheduleWork
     }
 }
 
+public interface ICronJob
+{
+    public DateTime ExecuteTime { get; init; }
+    public bool ShouldRepeat { get; init; }
+
+    public object? Data { get; protected set; }
+
+}
+
 public class Scheduler
 {
     BlockingCollection<IScheduleWork> stagingQueue = new();
-    ConcurrentQueue<IScheduleWork> commitQueue = new();
-    Thread stagingWorker;
 
-
-    List<SchedulerWorker> workers;
+    List<Thread> workers;
 
     CancellationTokenSource cts = new();
 
     DatabaseContext context = new DatabaseContext();
     public Scheduler(int threads)
     {
-        stagingWorker = new(WorkerLoop);
-        stagingWorker.Name = $"Staging worker";
-        // It doesn't need to run often, it's a background type task. But it must end when our main thread does.
-        stagingWorker.Priority = ThreadPriority.BelowNormal;
-
-
         workers = new(threads);
 
         for (int i = 0; i < threads; i++)
-            workers.Add(new SchedulerWorker(commitQueue, cts.Token, i, threads));
+            workers.Add(new Thread(() => WorkerLoop(i)));
     }
+
+    public void Start() => workers.ForEach( (worker) => worker.Start());
 
     public void StageWork(IScheduleWork work) => stagingQueue.Add(work);
 
-    void WorkerLoop()
+    // Maybe CronJob Table: Namespace | execute time | should repeat | values as json.
+
+    public void CommitCronJob(ICronJob job) => throw new NotImplementedException(); // Think longer on this one. Don't know the answer quite yet.
+
+    void WorkerLoop(int index)
     {
-        foreach (var stagedWork in stagingQueue.GetConsumingEnumerable())
+        foreach (var stagedWork in stagingQueue.GetConsumingEnumerable(cts.Token))
         {
             {
                 // Incase our cpu was mostly empty we wait for a milisecond still.
@@ -76,6 +82,9 @@ public class Scheduler
                 // 2. A wait to commit certain long duration tasks or cronjobs to the DB so we must check the DB for any expired tasks that must be fired off.
 
 
+                // fuck priority system for now, we can work on that when it's needed. If we do it everywhere here it should be fine.
+
+
                 // we must yield for other threads.
                 Thread.Yield();
             }
@@ -83,55 +92,51 @@ public class Scheduler
     }
 }
 
-public class SchedulerWorker
-{
-    ConcurrentQueue<IScheduleWork> workQueue;
-    Queue<IScheduleWork> stolenWork = new();
-    CancellationToken token;
+//public class SchedulerWorker
+//{
+//    ConcurrentQueue<IScheduleWork> workQueue;
+//    Queue<IScheduleWork> stolenWork = new();
+//    CancellationToken token;
 
-    Thread workerThread;
-
-    int totalThreads;
-
-    int WorkToSteal => workQueue.Count / totalThreads;
-
-    public SchedulerWorker(ConcurrentQueue<IScheduleWork> queue, CancellationToken token, int index, int totalThreads)
-    {
-        workQueue = queue;
-        this.token = token;
-        this.totalThreads = totalThreads;
-
-        workerThread = new(WorkerLoop);
-
-        workerThread.Name = $"Scheduler Worker #{index}";
-        workerThread.Priority = ThreadPriority.Normal;
-
-        workerThread.Start();
-    }
-
-    private void WorkerLoop()
-    {
-        while (false == token.IsCancellationRequested)
-        {
-            Thread.Sleep(1);
-
-            while (workQueue.TryDequeue(out IScheduleWork? stagedWork) && stolenWork.Count > WorkToSteal)
-                stolenWork.Enqueue(stagedWork);
-
-            if (workQueue.IsEmpty)
-            {
-                Thread.Yield();
-                continue;
-            }
-
-            if (false == workQueue.TryDequeue(out IScheduleWork? work))
-                continue;
+//    Thread workerThread;
 
 
-            work.Execute();
+//    public SchedulerWorker(CancellationToken token, int index)
+//    {
+//        this.token = token;
+//        this.totalThreads = totalThreads;
 
-        }
-    }
-}
+//        workerThread = new(WorkerLoop);
+
+//        workerThread.Name = $"Scheduler Worker #{index}";
+//        workerThread.Priority = ThreadPriority.Normal;
+
+//        workerThread.Start();
+//    }
+
+//    private void WorkerLoop()
+//    {
+//        while (false == token.IsCancellationRequested)
+//        {
+//            Thread.Sleep(1);
+
+//            while (workQueue.TryDequeue(out IScheduleWork? stagedWork) && stolenWork.Count > WorkToSteal)
+//                stolenWork.Enqueue(stagedWork);
+
+//            if (workQueue.IsEmpty)
+//            {
+//                Thread.Yield();
+//                continue;
+//            }
+
+//            if (false == workQueue.TryDequeue(out IScheduleWork? work))
+//                continue;
+
+
+//            work.Execute();
+
+//        }
+//    }
+//}
 
 
